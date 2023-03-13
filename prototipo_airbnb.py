@@ -28,8 +28,6 @@ def pagina_pesquisa(cidade, estado, pagina):
     pagina.locator('''xpath = /html/body/div[5]/div/div/div[1]/div/div[2]/div/div/div/div/div/div[2]/div/div/div/
     header/div/div[2]/div[2]/div/div/div/form/div[2]/div/div[5]/div[1]/div[2]/button''').click()
 
-    #url = pagina.url 
-
     return pagina.url 
 
 def filtro(pagina, url):
@@ -40,10 +38,12 @@ def filtro(pagina, url):
     pagina.locator('''xpath = /html/body/div[5]/div/div/div[1]/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div/div/div/div[2]/div/div/button''').click()
 
     ##CASA DE HOSPEDES
-    print(pagina.get_by_role("group").get_by_role("button").get_attribute("class"))
 
-    #pagina.locator('''xpath = /html/body/div[15]/section/div/div/div[2]/div/div[2]/div/div/main/div[4]/div/div/div/div/section
-    #/div[2]/div/div/div/div/div[2]/div[1]/button''').click()
+    pagina.locator('button:has-text("Casa")').locator('nth =' + repr(0)).click()
+    pagina.locator('button:has-text("Casa")').locator('nth =' + repr(1)).click()
+    pagina.locator('button:has-text("Casa")').locator('nth =' + repr(2)).click()
+
+    #pagina.locator('''xpath = /html/body/div[11]/section/div/div/div[2]/div/div[2]/div/div/main/div[4]/div/div/div/div/div/section/div[2]/div/div/div/div/div[2]/div[1]/button/div/div''').click()
     #pagina.locator('''xpath = /html/body/div[15]/section/div/div/div[2]/div/div[2]/div/div/main/div[4]/div/div/div/div/
     #section/div[2]/div/div/div/div/div[2]/div[2]/button/div/div''').click()
     #pagina.locator('''xpath = /html/body/div[15]/section/div/div/div[2]/div/div[2]/div/div/main/div[4]/div/div/div/div/
