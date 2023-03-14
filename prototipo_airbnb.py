@@ -1,8 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pandas as pd
-import numpy as np
 import time
-
 
 def pagina_pesquisa(cidade, estado, pagina):
     pagina.goto("https://www.airbnb.com.br/")
@@ -30,7 +28,7 @@ def pagina_pesquisa(cidade, estado, pagina):
 
     return pagina.url 
 
-def filtro(pagina, url):
+def filtro(pagina, url, quartos, camas, banheiros, minimo):
 
     pagina.goto(str(url))
 
@@ -41,14 +39,21 @@ def filtro(pagina, url):
 
     pagina.locator('button:has-text("Casa")').locator('nth =' + repr(0)).click()
     pagina.locator('button:has-text("Casa")').locator('nth =' + repr(1)).click()
-    pagina.locator('button:has-text("Casa")').locator('nth =' + repr(2)).click()
+    pagina.locator('button:has-text("Apartamento")').click()
 
-    #pagina.locator('''xpath = /html/body/div[11]/section/div/div/div[2]/div/div[2]/div/div/main/div[4]/div/div/div/div/div/section/div[2]/div/div/div/div/div[2]/div[1]/button/div/div''').click()
-    #pagina.locator('''xpath = /html/body/div[15]/section/div/div/div[2]/div/div[2]/div/div/main/div[4]/div/div/div/div/
-    #section/div[2]/div/div/div/div/div[2]/div[2]/button/div/div''').click()
-    #pagina.locator('''xpath = /html/body/div[15]/section/div/div/div[2]/div/div[2]/div/div/main/div[4]/div/div/div/div/
-    #section/div[2]/div/div/div/div/div[2]/div[3]/button/div/div''').click()
 
+    pagina.locator('button:has-text(' + repr(quartos) + ')').locator('nth =' + repr(-3)).click()
+    pagina.locator('button:has-text(' + repr(camas) + ')').locator('nth =' + repr(-2)).click()
+    pagina.locator('button:has-text(' + repr(banheiros) + ')').locator('nth =' + repr(-1)).click() 
+
+    #pagina.fill('id = "price_filter_min"', repr(minimo))
+
+
+preco_minimo = str(input('Preço mínimo: '))
+preco_maximo = str(input('Preço máximo: '))
+n_quartos = str(input('Quantos quartos: '))
+n_camas = str(input('Quantas camas: '))
+n_banheiros = str(input('Quantos banheiros: '))
 
 
 
@@ -62,6 +67,6 @@ with sync_playwright() as p:
 
     pagina_2 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
 
-    filtro(pagina_2, url)
+    filtro(pagina_2, url, n_quartos, n_camas, n_banheiros, preco_minimo)
 
     time.sleep(30)
