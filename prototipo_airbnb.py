@@ -28,7 +28,7 @@ def pagina_pesquisa(cidade, estado, pagina):
 
     return pagina.url 
 
-def filtro(pagina, url, quartos, camas, banheiros, minimo):
+def filtro(pagina, url, quartos, camas, banheiros, minimo, maximo):
 
     pagina.goto(str(url))
 
@@ -46,14 +46,15 @@ def filtro(pagina, url, quartos, camas, banheiros, minimo):
     pagina.locator('button:has-text(' + repr(camas) + ')').locator('nth =' + repr(-2)).click()
     pagina.locator('button:has-text(' + repr(banheiros) + ')').locator('nth =' + repr(-1)).click() 
 
-    #pagina.fill('id = "price_filter_min"', repr(minimo))
+    pagina.locator('input').locator('nth =' + repr(-19)).fill(repr(minimo))
+    pagina.locator('input').locator('nth =' + repr(-18)).fill(repr(maximo))
 
 
-preco_minimo = str(input('Preço mínimo: '))
-preco_maximo = str(input('Preço máximo: '))
-n_quartos = str(input('Quantos quartos: '))
-n_camas = str(input('Quantas camas: '))
-n_banheiros = str(input('Quantos banheiros: '))
+preco_minimo = 1000 #str(input('Preço mínimo: '))
+preco_maximo = 2000 #str(input('Preço máximo: '))
+n_quartos = '1' #str(input('Quantos quartos: '))
+n_camas = '1' #str(input('Quantas camas: '))
+n_banheiros = '1' #str(input('Quantos banheiros: '))
 
 
 
@@ -67,6 +68,6 @@ with sync_playwright() as p:
 
     pagina_2 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
 
-    filtro(pagina_2, url, n_quartos, n_camas, n_banheiros, preco_minimo)
+    filtro(pagina_2, url, n_quartos, n_camas, n_banheiros, preco_minimo, preco_maximo)
 
     time.sleep(30)
