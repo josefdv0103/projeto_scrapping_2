@@ -42,12 +42,24 @@ def filtro(pagina, url, quartos, camas, banheiros, minimo, maximo):
     pagina.locator('button:has-text("Apartamento")').click()
 
 
+    
     pagina.locator('button:has-text(' + repr(quartos) + ')').locator('nth =' + repr(-3)).click()
     pagina.locator('button:has-text(' + repr(camas) + ')').locator('nth =' + repr(-2)).click()
     pagina.locator('button:has-text(' + repr(banheiros) + ')').locator('nth =' + repr(-1)).click() 
 
-    pagina.locator('input').locator('nth =' + repr(-19)).fill(repr(minimo))
-    pagina.locator('input').locator('nth =' + repr(-18)).fill(repr(maximo))
+    dif = (maximo - minimo)/5
+    for i in range(5):
+
+        pagina.locator('''xpath = /html/body/div[5]/div/div/div[1]/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div/div/div/div[2]/div/div/button''').click()
+
+        pagina.locator('input').locator('nth =' + repr(-19)).fill(repr(maximo - dif))
+        pagina.locator('input').locator('nth =' + repr(-18)).fill(repr(maximo))
+
+        pagina.locator('a:has-text("Mostrar")').click()
+
+        dif += dif
+
+            
 
 
 preco_minimo = 1000 #str(input('Preço mínimo: '))
