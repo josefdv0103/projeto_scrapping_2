@@ -26,60 +26,62 @@ def pagina_pesquisa(cidade, estado, pagina):
     pagina.locator('''xpath = /html/body/div[5]/div/div/div[1]/div/div[2]/div/div/div/div/div/div[2]/div/div/div/
     header/div/div[2]/div[2]/div/div/div/form/div[2]/div/div[5]/div[1]/div[2]/button''').click()
 
-    return pagina.url 
+    return pagina.url
 
-def filtro(pagina, url, quartos, camas, banheiros, minimo, maximo):
+def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, i):
 
-    pagina.goto(str(url))
+    pagina_2.goto(str(url))
 
     #FILTRO
-    pagina.locator('''xpath = /html/body/div[5]/div/div/div[1]/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div/div/div/div[2]/div/div/button''').click()
+    pagina_2.locator('''xpath = /html/body/div[5]/div/div/div[1]/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div/div/div/div[2]/div/div/button''').click()
 
     ##CASA DE HOSPEDES
 
-    pagina.locator('button:has-text("Casa")').locator('nth =' + repr(0)).click()
-    pagina.locator('button:has-text("Casa")').locator('nth =' + repr(1)).click()
-    pagina.locator('button:has-text("Apartamento")').click()
+    pagina_2.locator('button:has-text("Casa")').locator('nth =' + repr(0)).click()
+    pagina_2.locator('button:has-text("Casa")').locator('nth =' + repr(1)).click()
+    pagina_2.locator('button:has-text("Apartamento")').click()
 
 
     
-    pagina.locator('button:has-text(' + repr(quartos) + ')').locator('nth =' + repr(-3)).click()
-    pagina.locator('button:has-text(' + repr(camas) + ')').locator('nth =' + repr(-2)).click()
-    pagina.locator('button:has-text(' + repr(banheiros) + ')').locator('nth =' + repr(-1)).click() 
+    pagina_2.locator('button:has-text(' + repr(quartos) + ')').locator('nth =' + repr(-3)).click()
+    pagina_2.locator('button:has-text(' + repr(camas) + ')').locator('nth =' + repr(-2)).click()
+    pagina_2.locator('button:has-text(' + repr(banheiros) + ')').locator('nth =' + repr(-1)).click() 
 
-    dif = (maximo - minimo)/5
-    for i in range(5):
+    
+    pagina_2.locator('input').locator('nth =' + repr(-19)).fill(repr(minimo))
+    pagina_2.locator('input').locator('nth =' + repr(-18)).fill(repr(maximo))
+    time.sleep(10)
+    pagina_2.locator('a:has-text("Mostrar")').click()
 
-        pagina.locator('''xpath = /html/body/div[5]/div/div/div[1]/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div/div/div/div[2]/div/div/button''').click()
-
-        pagina.locator('input').locator('nth =' + repr(-19)).fill(repr(maximo - dif))
-        pagina.locator('input').locator('nth =' + repr(-18)).fill(repr(maximo))
-
-        pagina.locator('a:has-text("Mostrar")').click()
-
-        dif += dif
-
-            
+    pagina_2.close()
 
 
-preco_minimo = 1000 #str(input('Preço mínimo: '))
-preco_maximo = 2000 #str(input('Preço máximo: '))
+preco_minimo = 1000 #int(input('Preço mínimo: '))
+preco_maximo = 2000 #int(input('Preço máximo: '))
 n_quartos = '1' #str(input('Quantos quartos: '))
 n_camas = '1' #str(input('Quantas camas: '))
 n_banheiros = '1' #str(input('Quantos banheiros: '))
 
-
+i = 10
 
 with sync_playwright() as p:
-    
-    navegador = p.chromium.launch(headless = False)
-    pagina_1 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
+    for j in range(9):
 
-    url = pagina_pesquisa('Praia Grande', 'SP', pagina_1)
-    pagina_1.close()
+        navegador = p.chromium.launch(headless = False)
+        pagina_1 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
 
-    pagina_2 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
+        url = pagina_pesquisa('Praia Grande', 'SP', pagina_1)
 
-    filtro(pagina_2, url, n_quartos, n_camas, n_banheiros, preco_minimo, preco_maximo)
+        pagina_1.close()
+
+        pagina_2 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
+        
+        dif = (preco_maximo - preco_minimo)/i
+
+        preco_minimo = int(preco_minimo + dif)
+
+        filtro(pagina_2, url, n_quartos, n_camas, n_banheiros, preco_minimo, preco_maximo)
+
+
 
     time.sleep(30)
