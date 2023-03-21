@@ -67,9 +67,9 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo):
     pagina_2.close()
 
 
-def clicar_anuncios(texto, pagina_2):
+#def clicar_anuncios(texto, pagina_2):
 
-    pagina_2.get_by_role("link").all_inner_texts()
+    
 
 preco_minimo = 1000 #int(input('Preço mínimo: '))
 preco_maximo = 2000 #int(input('Preço máximo: '))
@@ -94,10 +94,8 @@ with sync_playwright() as p:
         
         preco_minimo += int(dif)
 
+        pagina_2.get_by_role("link").all_inner_texts()
+
         filtro(pagina_2, url, n_quartos, n_camas, n_banheiros, preco_minimo, preco_maximo)
-
-        clicar_anuncios(texto, pagina_2)
-
-
 
     time.sleep(30)
