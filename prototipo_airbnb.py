@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 import pandas as pd
 import time
+from math import ceil
 
 def so_url(string):
     string =  'https://www.airbnb.com.br' + string
@@ -60,16 +61,22 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo):
     pagina_2.locator('input').locator('nth =' + repr(-19)).fill(repr(minimo))
     pagina_2.locator('input').locator('nth =' + repr(-18)).fill(repr(maximo))
 
+    time.sleep(7)
+
     texto_mostrar = pagina_2.get_by_role("link").all_inner_texts()[1]
 
     if texto_mostrar.find('Mostrar') != -1:
         pagina_2.locator('a:has-text("Mostrar")').click()
+        quant_p_abas = 18
+        quant_imoveis = int(texto_mostrar.split()[1])
+        abas = (quant_imoveis // quant_p_abas) + 1
 
-        time.sleep(5)
+    for i in range(abas):
+        if i == range(abas)[-1]:
+            quant_p_abas = (quant_imoveis % quant_p_abas)
+        for j in range(quant_p_abas):
 
-        for i in range(18):
-
-            texto_link = pagina_2.get_by_role('group').get_by_role('link').locator('nth =' + repr(i)).get_attribute('href')
+            texto_link = pagina_2.get_by_role('group').get_by_role('link').locator('nth =' + repr(j)).get_attribute('href')
             
             link_anuncio = so_url(texto_link)
 
@@ -88,11 +95,11 @@ n_quartos = '1' #str(input('Quantos quartos: '))
 n_camas = '1' #str(input('Quantas camas: '))
 n_banheiros = '1' #str(input('Quantos banheiros: '))
 
-i = 10
+i = 20
 dif = (preco_maximo - preco_minimo)/i
 
 with sync_playwright() as p:
-    for j in range(9):
+    for j in range(i-1):
 
         navegador = p.chromium.launch(headless = False)
         pagina_1 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
@@ -102,9 +109,11 @@ with sync_playwright() as p:
         pagina_1.close()
         
         pagina_2 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
-        
-        preco_minimo += int(dif)
+
+        preco_maximo = preco_minimo + int(dif)
 
         pagina_2.get_by_role("link").all_inner_texts()
 
         filtro(pagina_2, url, n_quartos, n_camas, n_banheiros, preco_minimo, preco_maximo)
+
+        preco_minimo += int(dif)
