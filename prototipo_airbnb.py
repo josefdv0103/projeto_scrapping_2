@@ -25,7 +25,7 @@ def pagina_pesquisa(cidade, estado, pagina):
     pagina.locator('button:has-text("Buscar")').click()
     return pagina.url
 
-def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, tabela, dif):
+def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif, dicionario, frame):
 
     pagina_2.goto(str(url))
 
@@ -62,9 +62,9 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, tabela, dif
 
         pagina_2.locator('input').locator('nth =' + repr(-18)).fill(repr(maximo))
 
-        pagina_2.mouse.click(1500 * 0.6, 1000 * 0.6)
+        pagina_2.mouse.click(1500 * 0.6, 1000 * 0.75)
 
-        time.sleep(0.3)
+        time.sleep(1)
 
         texto_mostrar = pagina_2.locator('footer').get_by_role("link").inner_text()
 
@@ -75,6 +75,10 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, tabela, dif
         maximo = maximo - int(dif)
 
         pagina_2.locator('input').locator('nth =' + repr(-18)).fill(repr(maximo))
+
+        pagina_2.mouse.click(1500 * 0.6, 1000 * 0.75)
+
+        time.sleep(1)
 
         texto_mostrar = pagina_2.locator('footer').get_by_role("link").inner_text()
 
@@ -106,15 +110,15 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, tabela, dif
             print(cabecalho)
 
             ## COMENTÁRIOS
-            tabela_1.update({'Nº_de_comentarios' : int(cabecalho[len(pagina_3.locator('h1').inner_text().split()) + 2])})
+            dicionario.update({'Nº_de_comentarios' : int(cabecalho[len(pagina_3.locator('h1').inner_text().split()) + 2])})
             
-            print(armazenagem(link_anuncio, pagina_3, tabela_1, tabela_2, estado, cabecalho))
+            armazenagem(link_anuncio, pagina_3, dicionario, frame, estado, cabecalho)
 
             pagina_3.close()
 
     pagina_2.close()
  
-def armazenagem(link, pagina_1, tabela_1, frame, estado, cabecalho):
+def armazenagem(link, pagina_1, dicionario, frame, estado, cabecalho):
 
    #LINK
     tabela_1.update({'Link' : link})
@@ -134,35 +138,33 @@ def armazenagem(link, pagina_1, tabela_1, frame, estado, cabecalho):
         tabela_1.update({'Localizacao' : ' '.join(cabecalho[(len(pagina_1.locator('h1').inner_text().split()) + 5) : -(3 + len(estado))])})
 
     #HOSPEDES
-    tabela_1.update({'Hospedes' : int(pagina_1.locator('''xpath = /html/body/div[5]/div/div/div[1]/div/div[2]/div/div/div/div[1]/main/div/div[1]/div[3]/div/div[1]/div/div[1]/div/div/section/div/div/div/div[1]/ol/li[1]/span[1]''').inner_text().split()[0])})
+    tabela_1.update({'Hospedes' : int(pagina_1.locator('li').locator('span:has-text("hóspedes")').inner_text().split()[0])})
     
     #QUARTOS
-    tabela_1.update({'Quartos' : int(pagina_1.locator('li').locator('span:has-text("Quarto")').inner_text().split()[0])})
+    tabela_1.update({'Quartos' : int(pagina_1.locator('li').locator('span:has-text("quarto")').inner_text().split()[0])})
 
     #CAMAS
-    tabela_1.update({'Camas' : int(pagina_1.locator('li').locator('span:has-text("Cama")').inner_text().split()[0])})
+    tabela_1.update({'Camas' : int(pagina_1.locator('li').locator('span:has-text("cama")').inner_text().split()[0])})
 
     #BANHEIROS
-    tabela_1.update({'Banheiros' : int(pagina_1.locator('li').locator('span:has-text("Banheiro")').inner_text().split()[0])})
+    tabela_1.update({'Banheiros' : int(pagina_1.locator('li').locator('span:has-text("banheiro")').inner_text().split()[0])})
     
     #VALOR TOTAL
-    if float(pagina_1.locator('span:has-text("R$")').locator('nth = 2').inner_text().split()[-1].replace(',','.').replace('R$','')) <= 10:
+    if float(pagina_1.locator('span:has-text("R$")').locator('nth = 1').inner_text().split()[-1].replace(',','.').replace('R$','')) <= 10:
         
-        tabela_1.update({'Total_sem_impostos' : float(pagina_1.locator('span:has-text("R$")').locator('nth = 2').inner_text().split()[-1].replace(',','.').replace('R$',''))*1000})   
+        tabela_1.update({'Total_sem_impostos' : float(pagina_1.locator('span:has-text("R$")').locator('nth = 1').inner_text().split()[-1].replace(',','.').replace('R$',''))*1000})   
     else:
-        tabela_1.update({'Total_sem_impostos' : float(pagina_1.locator('span:has-text("R$")').locator('nth = 2').inner_text().split()[-1].replace(',','.').replace('R$',''))})   
+        tabela_1.update({'Total_sem_impostos' : float(pagina_1.locator('span:has-text("R$")').locator('nth = 1').inner_text().split()[-1].replace(',','.').replace('R$',''))})   
 
+    frame = pd.concat([frame, pd.DataFrame([dicionario])], ignore_index = True)
 
-    frame = pd.concat([frame, pd.DataFrame([tabela_1])], ignore_index=True)
-
-    return frame
-
+    return frame.to_excel('tabela.xlsx')
 
 tabela_1 = {'Link' : [None], 'Avaliacao' : [None], 'Nº_de_comentarios' : [None], 'Superhost' : [None], 'Localizacao' : [None], 
             'Hospedes' : [None], 'Hospedagem' : [None], 'Quartos' : [None], 'Banheiros' : [None], 'Camas': [None], 'Taxa_limpeza' : [None], 
             'Taxa_servico': [None], 'Total_sem_impostos': [None]}
 
-tabela_2 = pd.DataFrame([tabela_1])
+tabela_2 = pd.DataFrame(tabela_1)
 
 cidade = 'Praia Grande' #str(input('Cidade: '))
 estado = 'São Paulo' #str(input('Estado: '))
@@ -173,7 +175,7 @@ n_camas = '1' #str(input('Quantas camas: '))
 n_banheiros = '1' #str(input('Quantos banheiros: '))
 
 
-i = 50
+i = 30
 dif = (preco_maximo - preco_minimo)/i
 
 with sync_playwright() as p:
@@ -188,4 +190,5 @@ with sync_playwright() as p:
     
     pagina_2 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
 
-    filtro(pagina_2, url, n_quartos, n_camas, n_banheiros, preco_minimo, preco_maximo, tabela_1, dif)
+    filtro(pagina_2, url, n_quartos, n_camas, n_banheiros, preco_minimo, preco_maximo, dif, tabela_1, tabela_2)
+
