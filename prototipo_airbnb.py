@@ -84,16 +84,18 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
 
     return texto_mostrar
 
-def armazenagem(link, pagina_1, dicionario, tabela_2, estado, cabecalho):
+def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho):
 
    #LINK
     dicionario.update({'link' : link})
 
     #NOTA
     
-    if pagina_1.locator('section').inner_text().count('·') >= 2:
-        dicionario.update({'avaliacao' : float(pagina_1.locator('''xpath = /html/body/div[5]/div/div/div[1]/div/div[2]/div/div/div/div[1]/main/div/div[1]/div[1]/div[1]/div/div/div/div/section/div[2]/div[1]/span[1]/span[2]''').inner_text().split()[0].replace(',','.'))})    
-    
+    if 'estrelas' in pagina_1.locator('h2').locator('span').locator('nth = 1').inner_text().split():
+        dicionario.update({'avaliacao' : float(pagina_1.locator('h2').locator('span').locator('nth = 1').inner_text().split()[0].replace(',','.'))})    
+    else:
+        dicionario.update({'avaliacao' :[None]})
+
     if 'Superhost' in cabecalho:
         ##SUPERHOST
         dicionario.update({'superhost' : 'Sim'})
@@ -178,6 +180,8 @@ with sync_playwright() as p:
     quant_p_abas = 18
     quant_imoveis = int(texto_mostrar.split()[1])
     abas = (quant_imoveis // quant_p_abas) + 1
+    print(abas)
+    print(quant_p_abas)
 
     for i in range(abas):
 
@@ -200,11 +204,18 @@ with sync_playwright() as p:
             ## COMENTÁRIOS
             if 'comentários' in cabecalho:
                 tabela_1.update({'nº_de_comentarios' : int(pagina_3.locator('button').locator('span:has-text("comentários")').locator("nth = 1").inner_text().split()[0])})
+            else:
+                tabela_1.update({'nº_de_comentarios' : [None]})
             
-            tabela_2 = armazenagem(link_anuncio, pagina_3, tabela_1, tabela_2, estado, cabecalho)
+            tabela_2 = armazenagem(link_anuncio, pagina_3, tabela_1, tabela_2, cabecalho)
 
             tabela_2.to_excel('tabela.xlsx')
 
             pagina_3.close()
+
+            if j == range(1, quant_p_abas)[-1]:
+                pagina_2.goto(so_url(pagina_2.get_by_role('navigation').get_by_role('link', name = 'Próximo').get_attribute('href')))
+
+            
 
     pagina_2.close()
