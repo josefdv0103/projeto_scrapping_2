@@ -90,9 +90,11 @@ def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho):
     dicionario.update({'link' : link})
 
     #NOTA
-    
-    if 'estrelas' in pagina_1.locator('h2').locator('span').locator('nth = 1').inner_text().split():
-        dicionario.update({'avaliacao' : float(pagina_1.locator('h2').locator('span').locator('nth = 1').inner_text().split()[0].replace(',','.'))})    
+
+    numero = (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('1,')) + (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('2,')) + (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('3,')) + (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('4,')) + (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('5,'))
+    if numero != -1: 
+        print(pagina_1.locator('section').locator('nth = 0').inner_text())
+        dicionario.update({'avaliacao' : float(pagina_1.locator('section').locator('nth = 0').inner_text()[numero + 3: numero + 8].strip().replace(',','.'))})    
     else:
         dicionario.update({'avaliacao' :[None]})
 
@@ -152,7 +154,7 @@ tabela_2 = pd.DataFrame(tabela_1)
 cidade = 'Praia Grande' #str(input('Cidade: '))
 estado = 'São Paulo' #str(input('Estado: '))
 preco_minimo = 1000 #int(input('Preço mínimo: '))
-preco_maximo = 1500 #int(input('Preço máximo: '))
+preco_maximo = 1300 #int(input('Preço máximo: '))
 n_quartos = '1' #str(input('Quantos quartos: '))
 n_camas = '1' #str(input('Quantas camas: '))
 n_banheiros = '1' #str(input('Quantos banheiros: '))
