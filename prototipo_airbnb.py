@@ -68,8 +68,6 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
 
         texto_mostrar = pagina_2.locator('footer').get_by_role("link").inner_text()
 
-        print(texto_mostrar)
-
     while int(texto_mostrar.split()[1]) > 270:
 
         maximo = maximo - int(dif)
@@ -84,21 +82,23 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
 
     return texto_mostrar
 
-def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho):
+def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho_1, cabecalho_2):
 
    #LINK
     dicionario.update({'link' : link})
 
     #NOTA
 
-    numero = (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('1,')) + (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('2,')) + (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('3,')) + (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('4,')) + (pagina_1.locator('section').locator('nth = 0').inner_text().strip().find('5,'))
-    if numero != -1: 
-        print(pagina_1.locator('section').locator('nth = 0').inner_text())
-        dicionario.update({'avaliacao' : float(pagina_1.locator('section').locator('nth = 0').inner_text()[numero + 3: numero + 8].strip().replace(',','.'))})    
+    numero = (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('1,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('2,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('3,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('4,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('5,'))
+    print(numero)
+    if numero != -5: 
+        print(pagina_1.locator('section').locator('nth = 1').inner_text())
+        print(pagina_1.locator('section').locator('nth = 1').inner_text()[numero + 3: numero + 8].strip().replace(',','.'))    
+        dicionario.update({'avaliacao' : float(pagina_1.locator('section').locator('nth = 1').inner_text()[numero + 3: numero + 8].replace(',','.'))})    
     else:
         dicionario.update({'avaliacao' :[None]})
 
-    if 'Superhost' in cabecalho:
+    if 'Superhost' in (cabecalho_1 or cabecalho_2):
         ##SUPERHOST
         dicionario.update({'superhost' : 'Sim'})
         ##CIDADE/BAIRRO
@@ -160,7 +160,7 @@ n_camas = '1' #str(input('Quantas camas: '))
 n_banheiros = '1' #str(input('Quantos banheiros: '))
 
 
-i = 30
+i = 20
 dif = (preco_maximo - preco_minimo)/i
 
 with sync_playwright() as p:
@@ -201,15 +201,17 @@ with sync_playwright() as p:
             pagina_3.goto(link_anuncio)
 
             #CABEÇALHO
-            cabecalho = pagina_3.locator('section').locator('nth = 0').inner_text().split()
+            cabecalho_1 = pagina_3.locator('section').locator('nth = 0').inner_text().split()
+            cabecalho_2 = pagina_3.locator('section').locator('nth = 1').inner_text().split()
+
 
             ## COMENTÁRIOS
-            if 'comentários' in cabecalho:
+            if 'comentários' in (cabecalho_1 or cabecalho_2):
                 tabela_1.update({'nº_de_comentarios' : int(pagina_3.locator('button').locator('span:has-text("comentários")').locator("nth = 1").inner_text().split()[0])})
             else:
                 tabela_1.update({'nº_de_comentarios' : [None]})
             
-            tabela_2 = armazenagem(link_anuncio, pagina_3, tabela_1, tabela_2, cabecalho)
+            tabela_2 = armazenagem(link_anuncio, pagina_3, tabela_1, tabela_2, cabecalho_1, cabecalho_2)
 
             tabela_2.to_excel('tabela.xlsx')
 
