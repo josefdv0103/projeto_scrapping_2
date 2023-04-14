@@ -49,9 +49,10 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
     pagina_2.locator('button:has-text(' + repr(banheiros) + ')').locator('nth =' + repr(-1)).click() 
 
     #LIMITES DE PREÇO
-    pagina_2.locator('section').locator('label').locator('div').locator('div').locator('input').locator('nth = 0').fill(repr(minimo))
-    pagina_2.locator('section').locator('label').locator('div').locator('div').locator('input').locator('nth = 1').fill(repr(maximo))   
-
+    pagina_2.locator('section').get_by_label("preço mínimoR$").dblclick()
+    pagina_2.locator('section').get_by_label("preço mínimoR$").fill(repr(minimo))
+    pagina_2.locator('section').get_by_label("preço máximoR$").dblclick()
+    pagina_2.locator('section').get_by_label("preço máximoR$").fill(repr(maximo))
     #BOTAO MOSTRAR
     texto_mostrar = pagina_2.locator('footer').get_by_role("link").inner_text()
 
@@ -60,7 +61,7 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
 
         maximo = maximo - int(dif)
 
-        pagina_2.locator('section').locator('label').locator('div').locator('div').locator('input').locator('nth = 1').fill(repr(maximo))
+        pagina_2.locator('section').get_by_label("preço máximoR$").fill(repr(maximo))
 
         pagina_2.mouse.click(1500 * 0.6, 1000 * 0.75)
 
@@ -72,7 +73,7 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
 
         maximo = maximo - int(dif)
 
-        pagina_2.locator('input').locator('nth =' + repr(-18)).fill(repr(maximo))
+        pagina_2.locator('section').get_by_label("preço máximoR$").fill(repr(maximo))
 
         pagina_2.mouse.click(1500 * 0.6, 1000 * 0.75)
 
@@ -90,10 +91,7 @@ def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho_1, cabecalho_2):
     #NOTA
 
     numero = (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('1,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('2,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('3,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('4,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('5,'))
-    print(numero)
     if numero != -5: 
-        print(pagina_1.locator('section').locator('nth = 1').inner_text())
-        print(pagina_1.locator('section').locator('nth = 1').inner_text()[numero + 3: numero + 8].strip().replace(',','.'))    
         dicionario.update({'avaliacao' : float(pagina_1.locator('section').locator('nth = 1').inner_text()[numero + 3: numero + 8].replace(',','.'))})    
     else:
         dicionario.update({'avaliacao' :[None]})
@@ -110,11 +108,11 @@ def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho_1, cabecalho_2):
         dicionario.update({'localizacao' : pagina_1.locator('div').locator('span').locator('button').locator('span:has-text("Brasil")').inner_text()})
 
     #HOSPEDES
-    if 'Mais' in pagina_1.locator('li').locator('span:has-text("hóspedes")').inner_text().split():
-        dicionario.update({'hospedes' : int(pagina_1.locator('li').locator('span:has-text("hóspedes")').inner_text().split()[2])})
+    if 'Mais' in pagina_1.locator('li').locator('span:has-text("hóspede")').inner_text().split():
+        dicionario.update({'hospedes' : int(pagina_1.locator('li').locator('span:has-text("hóspede")').inner_text().split()[2])})
         
     else:    
-        dicionario.update({'hospedes' : int(pagina_1.locator('li').locator('span:has-text("hóspedes")').inner_text().split()[0])})
+        dicionario.update({'hospedes' : int(pagina_1.locator('li').locator('span:has-text("hóspede")').inner_text().split()[0])})
     
     #QUARTOS
     dicionario.update({'quartos' : int(pagina_1.locator('li').locator('span:has-text("quarto")').inner_text().split()[0])})
@@ -126,13 +124,18 @@ def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho_1, cabecalho_2):
     dicionario.update({'camas' : int(pagina_1.locator('li').locator('span:has-text("cama")').inner_text().split()[0])})
 
     #QUANT NOITES
-    dicionario.update({'quant_noites' : int(pagina_1.locator('section').locator('span').locator('div').locator('button').locator('div:has-text("noite")').inner_text().split()[-2])})
+    if pagina_1.locator('section').locator('span').locator('div').locator('button').locator("nth = 0").inner_text().find("R$") != -1:
+        dicionario.update({'quant_noites' : int(pagina_1.locator('section').locator('span').locator('div').locator('button:has-text("R$")').inner_text().split()[2])})
+
+    else:
+        dicionario.update({'reserva_p_noite' : [None]})
 
     #RESERVAS POR NOITE
-    #if float(pagina_1.locator('section').locator('span').locator('div').locator('button').locator('div:has-text("noite")').inner_text().split()[0].replace(',','.').replace('R$','')) < 10:
-    dicionario.update({'reserva_p_noite' : int(pagina_1.locator('section').locator('span').locator('div').locator('button').locator('div:has-text("noite")').inner_text().split()[0].replace('.','').replace('R$',''))})
-    #else:   
-    #    dicionario.update({'reserva_p_noite' : int(pagina_1.locator('section').locator('span').locator('div').locator('button').locator('div:has-text("noite")').inner_text().split()[0].replace(',','.').replace('R$',''))})
+    if pagina_1.locator('section').locator('span').locator('div').locator('button').locator("nth = 0").inner_text().find("R$") != -1:
+        dicionario.update({'reserva_p_noite' : int(pagina_1.locator('section').locator('span').locator('div').locator('button:has-text("R$")').inner_text().split()[0].replace('.','').replace('R$',''))})
+
+    else:
+        dicionario.update({'reserva_p_noite' : [None]})
 
     #VALOR TOTAL
     if float(pagina_1.locator('section').locator('div').locator('div').locator('span').locator('span:has-text("R$")').locator('nth  = 1').inner_text().split()[-1].replace(',','.').replace('R$','')) <= 10:
@@ -146,15 +149,14 @@ def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho_1, cabecalho_2):
     return tabela_2
 
 tabela_1 = {'link' : [None], 'avaliacao' : [None], 'nº_de_comentarios' : [None], 'superhost' : [None], 'localizacao' : [None], 
-            'hospedes' : [None],  'quartos' : [None], 'banheiros' : [None], 'camas': [None], 'reserva_p_noite' : [None], 'quant_noites' : [None], 
-            'taxa_limpeza' : [None], 'taxa_servico': [None], 'total_sem_impostos': [None]}
+            'hospedes' : [None],  'quartos' : [None], 'banheiros' : [None], 'camas': [None], 'reserva_p_noite' : [None], 'quant_noites' : [None], 'total_sem_impostos': [None]}
 
 tabela_2 = pd.DataFrame(tabela_1)
 
 cidade = 'Praia Grande' #str(input('Cidade: '))
 estado = 'São Paulo' #str(input('Estado: '))
-preco_minimo = 1000 #int(input('Preço mínimo: '))
-preco_maximo = 1300 #int(input('Preço máximo: '))
+preco_minimo = 100 #int(input('Preço mínimo: '))
+preco_maximo = 150 #int(input('Preço máximo: '))
 n_quartos = '1' #str(input('Quantos quartos: '))
 n_camas = '1' #str(input('Quantas camas: '))
 n_banheiros = '1' #str(input('Quantos banheiros: '))
@@ -182,8 +184,6 @@ with sync_playwright() as p:
     quant_p_abas = 18
     quant_imoveis = int(texto_mostrar.split()[1])
     abas = (quant_imoveis // quant_p_abas) + 1
-    print(abas)
-    print(quant_p_abas)
 
     for i in range(abas):
 
@@ -196,24 +196,28 @@ with sync_playwright() as p:
             
             link_anuncio = so_url(texto_link)
 
+            print(link_anuncio)
+
             pagina_3 = navegador.new_page(viewport = {'width': 1500, 'height': 1000})
 
             pagina_3.goto(link_anuncio)
 
-            #CABEÇALHO
-            cabecalho_1 = pagina_3.locator('section').locator('nth = 0').inner_text().split()
-            cabecalho_2 = pagina_3.locator('section').locator('nth = 1').inner_text().split()
+            if pagina_3.locator('main:has-text("Denunciar este anúncio")').inner_text().count("Saiba mais") != 2:
+
+                #CABEÇALHO
+                cabecalho_1 = pagina_3.locator('section').locator('nth = 0').inner_text().split()
+                cabecalho_2 = pagina_3.locator('section').locator('nth = 1').inner_text().split()
 
 
-            ## COMENTÁRIOS
-            if 'comentários' in (cabecalho_1 or cabecalho_2):
-                tabela_1.update({'nº_de_comentarios' : int(pagina_3.locator('button').locator('span:has-text("comentários")').locator("nth = 1").inner_text().split()[0])})
-            else:
-                tabela_1.update({'nº_de_comentarios' : [None]})
-            
-            tabela_2 = armazenagem(link_anuncio, pagina_3, tabela_1, tabela_2, cabecalho_1, cabecalho_2)
+                ## COMENTÁRIOS
+                if 'comentários' in (cabecalho_1 or cabecalho_2):
+                    tabela_1.update({'nº_de_comentarios' : int(pagina_3.locator('button').locator('span:has-text("comentários")').locator("nth = 1").inner_text().split()[0])})
+                else:
+                    tabela_1.update({'nº_de_comentarios' : [None]})
+                
+                tabela_2 = armazenagem(link_anuncio, pagina_3, tabela_1, tabela_2, cabecalho_1, cabecalho_2)
 
-            tabela_2.to_excel('tabela.xlsx')
+                tabela_2.to_excel('tabela.xlsx')
 
             pagina_3.close()
 
