@@ -69,7 +69,7 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
 
         texto_mostrar = pagina_2.locator('footer').get_by_role("link").inner_text()
 
-    while int(texto_mostrar.split()[1]) > 270:
+    while int(texto_mostrar.split()[1]) > 30:
 
         maximo = maximo - int(dif)
 
@@ -80,6 +80,8 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
         time.sleep(1)
 
         texto_mostrar = pagina_2.locator('footer').get_by_role("link").inner_text()
+
+    print(texto_mostrar.split()[1])
 
     return texto_mostrar
 
@@ -156,7 +158,7 @@ tabela_2 = pd.DataFrame(tabela_1)
 cidade = 'Praia Grande' #str(input('Cidade: '))
 estado = 'São Paulo' #str(input('Estado: '))
 preco_minimo = 100 #int(input('Preço mínimo: '))
-preco_maximo = 150 #int(input('Preço máximo: '))
+preco_maximo = 120 #int(input('Preço máximo: '))
 n_quartos = '1' #str(input('Quantos quartos: '))
 n_camas = '1' #str(input('Quantas camas: '))
 n_banheiros = '1' #str(input('Quantos banheiros: '))
@@ -184,13 +186,14 @@ with sync_playwright() as p:
     quant_p_abas = 18
     quant_imoveis = int(texto_mostrar.split()[1])
     abas = (quant_imoveis // quant_p_abas) + 1
+    print(abas)
 
     for i in range(abas):
 
         if i == range(abas)[-1]:
             quant_p_abas = (quant_imoveis % quant_p_abas)
 
-        for j in range(1, quant_p_abas):
+        for j in range(1, 18):
 
             texto_link = pagina_2.get_by_role('group').get_by_role('link').locator('nth =' + repr(j)).get_attribute('href')
             
@@ -221,9 +224,10 @@ with sync_playwright() as p:
 
             pagina_3.close()
 
-            if j == range(1, quant_p_abas)[-1]:
+            if j == range(1, quant_p_abas)[-1] and i != range(abas)[-1]:
                 pagina_2.goto(so_url(pagina_2.get_by_role('navigation').get_by_role('link', name = 'Próximo').get_attribute('href')))
-
             
+            if j == range(1, quant_p_abas)[-1] and i == range(abas)[-1]:
+                break
 
     pagina_2.close()
