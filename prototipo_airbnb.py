@@ -155,13 +155,13 @@ tabela_1 = {'link' : [None], 'avaliacao' : [None], 'nº_de_comentarios' : [None]
 
 tabela_2 = pd.DataFrame(tabela_1)
 
-cidade = 'Praia Grande' #str(input('Cidade: '))
-estado = 'São Paulo' #str(input('Estado: '))
-preco_minimo = 100 #int(input('Preço mínimo: '))
-preco_maximo = 120 #int(input('Preço máximo: '))
-n_quartos = '1' #str(input('Quantos quartos: '))
-n_camas = '1' #str(input('Quantas camas: '))
-n_banheiros = '1' #str(input('Quantos banheiros: '))
+cidade = str(input('Cidade: '))
+estado = str(input('Estado: '))
+preco_minimo = int(input('Preço mínimo: '))
+preco_maximo = int(input('Preço máximo: '))
+n_quartos = str(input('Quantos quartos: '))
+n_camas = str(input('Quantas camas: '))
+n_banheiros = str(input('Quantos banheiros: '))
 
 
 i = 20
