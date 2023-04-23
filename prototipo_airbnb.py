@@ -8,7 +8,7 @@ def so_url(string):
 
     return string
 
-def pagina_pesquisa(cidade, estado, pagina):
+def pagina_pesquisa(cidade, estado, pagina, escolha_tempo):
     pagina.goto("https://www.airbnb.com.br/")
 
     #FAZENDO A PESQUISA 
@@ -17,10 +17,24 @@ def pagina_pesquisa(cidade, estado, pagina):
     pagina.locator('div').locator('input').locator('nth = 1').click()
     pagina.locator('div').locator('input').locator('nth = 1').fill(str(cidade) + ', ' + str(estado))
     pagina.keyboard.press("Enter")
+
     ###DATAS FLEXIVEIS
     pagina.locator('button:has-text("Datas flexíveis")').click()
-    ###UM FIM DE SEMANA
-    pagina.locator('label:has-text("Um fim de semana")').click()
+
+    if escolha_tempo[0] == 0:
+        ###UM FIM DE SEMANA
+        pagina.locator('label:has-text("Um fim de semana")').click()
+    if escolha_tempo[0] == 1:
+        ###UMA SEMANA
+        pagina.locator('label:has-text("Uma semana")').click()
+    if escolha_tempo[0] == 2:
+        ###UM MÊS
+        pagina.locator('label:has-text("Um mês")').click()
+
+    if escolha_tempo[1] == True:
+        pagina.locator('button:has-text('+ repr(escolha_tempo[2]) + ')').click()
+
+
     ##BOTAO DE BUSCA
     pagina.locator('button:has-text("Buscar")').click()
     return pagina.url
@@ -55,9 +69,9 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
     pagina_2.locator('section').get_by_label("preço máximoR$").fill(repr(maximo))
     #BOTAO MOSTRAR
     texto_mostrar = pagina_2.locator('footer').get_by_role("link").inner_text()
-
+    print(texto_mostrar)
     ##CASO APAREÇA MAIS DE MIL RESULTADOS, NO CASO, IRA PEGAR UM INTERVALO MENOR
-    while "mil" in texto_mostrar.split():
+    while "1.000+" in texto_mostrar.split():
 
         maximo = maximo - int(dif)
 
@@ -69,7 +83,7 @@ def filtro(pagina_2, url, quartos, camas, banheiros, minimo, maximo, dif):
 
         texto_mostrar = pagina_2.locator('footer').get_by_role("link").inner_text()
 
-    while int(texto_mostrar.split()[1]) > 30:
+    while int(texto_mostrar.split()[1]) > 270:
 
         maximo = maximo - int(dif)
 
@@ -93,7 +107,7 @@ def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho_1, cabecalho_2):
     #NOTA
 
     numero = (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('1,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('2,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('3,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('4,')) + (pagina_1.locator('section').locator('nth = 1').inner_text().strip().find('5,'))
-    if numero != -5: 
+    if numero != -5 and pagina_1.locator('span').locator('h1').inner_text().find('1,') + pagina_1.locator('span').locator('h1').inner_text().find('2,') + pagina_1.locator('span').locator('h1').inner_text().find('3,') + pagina_1.locator('span').locator('h1').inner_text().find('4,') + pagina_1.locator('span').locator('h1').inner_text().find('5,') == -1: 
         dicionario.update({'avaliacao' : float(pagina_1.locator('section').locator('nth = 1').inner_text()[numero + 3: numero + 8].replace(',','.'))})    
     else:
         dicionario.update({'avaliacao' :[None]})
@@ -117,8 +131,11 @@ def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho_1, cabecalho_2):
         dicionario.update({'hospedes' : int(pagina_1.locator('li').locator('span:has-text("hóspede")').inner_text().split()[0])})
     
     #QUARTOS
-    dicionario.update({'quartos' : int(pagina_1.locator('li').locator('span:has-text("quarto")').inner_text().split()[0])})
-    
+    if pagina_1.locator('li').locator('nth = 1').inner_text().find('quarto') != -1:
+        dicionario.update({'quartos' : int(pagina_1.locator('li').locator('span:has-text("quarto")').inner_text().split()[0])})
+    else:
+        dicionario.update({'quartos' : 0})
+
     #BANHEIROS
     dicionario.update({'banheiros' : int(pagina_1.locator('li').locator('span:has-text("banheiro")').inner_text().split()[0])})
     
@@ -150,19 +167,37 @@ def armazenagem(link, pagina_1, dicionario, tabela_2, cabecalho_1, cabecalho_2):
 
     return tabela_2
 
+#TABELAS QUE SERAO ARMAZENADAS OS DADOS
 tabela_1 = {'link' : [None], 'avaliacao' : [None], 'nº_de_comentarios' : [None], 'superhost' : [None], 'localizacao' : [None], 
             'hospedes' : [None],  'quartos' : [None], 'banheiros' : [None], 'camas': [None], 'reserva_p_noite' : [None], 'quant_noites' : [None], 'total_sem_impostos': [None]}
 
 tabela_2 = pd.DataFrame(tabela_1)
 
+#AREA DE INPUT DE FILTROS--------------------------------------------------------------------------------------------------------------
 cidade = str(input('Cidade: '))
 estado = str(input('Estado: '))
+
+escolha_tempo = [int(input('Escolha o tempo que estadia em média: \nUm fim de semana(0) | Uma semana(1) | Um mês(2) '))]
+if input('Deseja especificar o mes de estadia: s/n? ') == 's' and 'S':
+    escolha_tempo.append(True)
+    escolha_tempo.append(str(input('Mês(em minusculo): ')))
+else:
+    escolha_tempo.append(False)
+    escolha_tempo.append(False)
+
 preco_minimo = int(input('Preço mínimo: '))
 preco_maximo = int(input('Preço máximo: '))
-n_quartos = str(input('Quantos quartos: '))
-n_camas = str(input('Quantas camas: '))
-n_banheiros = str(input('Quantos banheiros: '))
 
+if input('Deseja especificar numero de quartos/camas/banheiros?: s/n ') == ('s' or 'S'):
+    n_quartos = str(input('Quantos quartos: '))
+    n_camas = str(input('Quantas camas: '))
+    n_banheiros = str(input('Quantos banheiros: '))
+else:
+    n_quartos = 'Qualquer'
+    n_camas = 'Qualquer'
+    n_banheiros = 'Qualquer'
+
+##---------------------------------------------------------------------------------------------------------------
 
 i = 20
 dif = (preco_maximo - preco_minimo)/i
@@ -173,7 +208,7 @@ with sync_playwright() as p:
     navegador = p.chromium.launch(headless = False)
     pagina_1 = navegador.new_page(viewport = {'width': 1200, 'height': 800})
 
-    url = pagina_pesquisa(cidade, estado, pagina_1)
+    url = pagina_pesquisa(cidade, estado, pagina_1, escolha_tempo)
 
     pagina_1.close()
     
@@ -193,7 +228,10 @@ with sync_playwright() as p:
         if i == range(abas)[-1]:
             quant_p_abas = (quant_imoveis % quant_p_abas)
 
-        for j in range(1, 18):
+        for j in range(0, 19):
+            
+            if i == 0:
+                j = 1
 
             texto_link = pagina_2.get_by_role('group').get_by_role('link').locator('nth =' + repr(j)).get_attribute('href')
             
